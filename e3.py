@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from keras.layers import Input, Flatten, Dense, Conv2D
 from keras.models import Model
-from keras.optimizers import Adam, Adamax
+from keras.optimizers import Adam
 from keras.utils import to_categorical
 
 import os
@@ -53,7 +53,7 @@ Labels = np.array(Labels)
 Labels = to_categorical(Labels)
 
 # Split Dataset to train\test
-(trainX, testX, trainY, testY) = train_test_split(Dataset, Labels, test_size=0.2, random_state=42)
+(trainX, testX, trainY, testY) = train_test_split(Dataset, Labels, test_size=0.2, random_state=13)
 
 print("X Train shape:", trainX.shape)
 print("X Test shape:", testX.shape)
@@ -79,13 +79,13 @@ model = Model(input_layer, output_layer)
 model.summary()
 
 # Declare the optimizer
-opt = Adamax(lr=0.0002)
+opt = Adam(lr=0.0001)
 
 # Compile the model
 model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 # Train the model
-model.fit(trainX, trainY, batch_size=64, epochs=10, shuffle=True)
+model.fit(trainX, trainY, batch_size=128, epochs=13, shuffle=True)
 
 model.evaluate(testX, testY)
 
@@ -98,9 +98,9 @@ for path in os.listdir(PATH + 'Predict'):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     _, threshold = cv2.threshold(img, 127, 255, 1)
-    contours, _ = cv2.findContours(threshold.copy(), cv2.RETR_LIST,cv2.CHAIN_APPROX_NONE)
+    contours, _ = cv2.findContours(threshold, cv2.RETR_EXTERNAL ,cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
-        cv2.drawContours(img,[cnt],0,(0,255,0),-1)
+        cv2.drawContours(img,[cnt],-1,(0,255,0),-1)
 
     img = cv2.merge([img,img,img])
     img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
@@ -119,3 +119,4 @@ print(predictions)
 
 CLASSES = np.array(Shapes)
 print(CLASSES[np.argmax(predictions, axis = 1)])
+
